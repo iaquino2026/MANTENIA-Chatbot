@@ -24,7 +24,7 @@ def setting(name, default=""):
     return os.getenv(name, default)
 
 GEMINI_API_KEY = setting("GEMINI_API_KEY")
-MODEL = setting("GEMINI_MODEL", "gemini-2.5-flash-lite")
+MODEL = setting("GEMINI_MODEL", "gemini-3.5-flash-lite")
 
 SYSTEM_INSTRUCTIONS = """
 Eres MANTENIA, asistente técnico de apoyo a la gestión del mantenimiento de equipos mineros.
