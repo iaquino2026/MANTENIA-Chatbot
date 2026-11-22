@@ -1,75 +1,86 @@
-# MANTENIA – Chatbot generativo con base documental (RAG)
+# MANTENIA – Gemini + Google Search + documentos PDF
 
-## Plataforma
-- **OpenAI API – Responses API + File Search:** genera respuestas y recupera fragmentos relevantes de documentos indexados en un vector store.
-- **Streamlit:** interfaz web y carga de documentos.
-- **Streamlit Community Cloud:** opción de publicación pública mediante GitHub.
+Esta versión sustituye OpenAI por Google Gemini API. Conserva Streamlit y GitHub, incorpora Google Search Grounding y permite cargar documentos PDF, DOCX, TXT, MD y CSV para recuperación documental (RAG) sencilla.
 
-La búsqueda de archivos de OpenAI permite recuperar información de archivos indexados mediante búsqueda semántica y por palabras clave. La aplicación utiliza un vector store para guardar la base documental. Consulte la documentación oficial:
-- https://developers.openai.com/api/docs/guides/tools-file-search
-- https://developers.openai.com/api/docs/guides/file-inputs
+## 1. Crear una clave de Gemini
+1. Entra en https://aistudio.google.com/app/apikey
+2. Inicia sesión con tu cuenta Google.
+3. Crea una API key.
+4. No publiques la clave en GitHub ni la pegues en `app.py`.
 
-## Formatos admitidos por MANTENIA
-- PDF
-- DOCX
-- XLSX
-- CSV
-- TXT
-- MD
+El acceso gratuito está sujeto a disponibilidad, modelos admitidos, cuotas y límites que Google puede modificar. Consulta https://ai.google.dev/gemini-api/docs/pricing y https://ai.google.dev/gemini-api/docs/rate-limits. La búsqueda con Google Search también tiene límites propios según modelo y nivel de uso; no presupongas que es ilimitada ni siempre gratuita.
 
-Los archivos Excel y CSV se convierten a Markdown tabular antes de indexarse. Esto permite búsquedas semánticas sobre sus filas y datos textuales, pero no sustituye un análisis estadístico avanzado ni garantiza cálculos complejos sobre grandes volúmenes.
+## 2. Archivos del proyecto
+- `app.py`: aplicación Streamlit con Gemini, búsqueda web y carga documental.
+- `requirements.txt`: dependencias.
+- `secrets.toml.example`: plantilla de configuración.
+- `README.md`: estas instrucciones.
 
-**Importante:** los PDF escaneados sin capa de texto pueden no indexarse correctamente. Se recomienda aplicar OCR o guardar una versión PDF con texto seleccionable. Los diagramas e imágenes incrustadas en DOCX/XLSX no se extraen mediante esta conversión. Para conservarlos, convierta el documento a PDF y revise el resultado.
+## 3. Configurar Streamlit Cloud
+1. Abre tu repositorio GitHub `MANTENIA-Chatbot`.
+2. Reemplaza el `app.py` anterior por este `app.py`.
+3. Reemplaza `requirements.txt`.
+4. Sube también `README.md` y `secrets.toml.example` si lo deseas.
+5. En Streamlit Community Cloud, abre la aplicación → Manage app → Settings → Secrets.
+6. Pega el siguiente contenido, reemplazando el valor por tu clave real:
 
-## Ejecutar localmente en Windows
-1. Instale Python 3.10 o superior.
-2. Descomprima el proyecto y abra PowerShell en la carpeta.
-3. Cree entorno: `py -m venv .venv`
-4. Active: `.venv\Scripts\Activate.ps1`
-5. Instale: `pip install -r requirements.txt`
-6. Configure la clave API en la sesión: `$env:OPENAI_API_KEY="TU_CLAVE_API"`
-7. Ejecute: `streamlit run app.py`
-8. Abra la dirección local que indique Streamlit.
-
-## Crear y utilizar la base documental
-1. Abra MANTENIA en el navegador.
-2. En el panel lateral, pulse **Crear base documental**.
-3. Copie el identificador del vector store que muestra la aplicación.
-4. Guarde ese identificador como secreto `MANTENIA_VECTOR_STORE_ID` para conservar la base entre sesiones.
-5. Seleccione PDF, DOCX, XLSX, CSV, TXT o MD.
-6. Pulse **Agregar documentos a la base** y espere a que se complete la indexación.
-7. Haga preguntas específicas sobre el contenido cargado.
-
-Para consultas basadas en archivos, la aplicación activa la herramienta `file_search` de la Responses API sobre el vector store seleccionado.
-
-## Secretos en Streamlit Community Cloud
-En la configuración de la aplicación, agregue:
 ```toml
-OPENAI_API_KEY = "TU_CLAVE_API"
-MANTENIA_VECTOR_STORE_ID = "vs_xxxxxxxxx"
-OPENAI_MODEL = "gpt-5.5"
+GEMINI_API_KEY = "TU_CLAVE_REAL_DE_GEMINI"
+GEMINI_MODEL = "gemini-2.5-flash-lite"
 ```
-No suba claves al repositorio ni las escriba en el código. Proteja el repositorio y la aplicación si los documentos contienen información interna.
 
-## Publicación
-1. Cree un repositorio GitHub privado si los documentos/código contienen información interna.
-2. Suba app.py, knowledge_base.md, requirements.txt y README.md.
-3. Entre a https://share.streamlit.io/ y conecte GitHub.
-4. Cree una aplicación apuntando a `app.py`.
-5. Configure los secretos anteriores en Streamlit.
-6. Despliegue y pruebe el enlace. No publique documentos confidenciales en un sitio abierto.
+7. Guarda los cambios. Streamlit reiniciará la aplicación.
 
-## Privacidad y seguridad
-- Anonimice nombres, placas, números de serie, datos personales, datos de clientes, contratos y costos sensibles antes de cargar archivos.
-- Use documentos autorizados para compartir con el proveedor de API.
-- Limite el acceso a la aplicación y al vector store.
-- Revise las políticas de retención, acceso y tratamiento de datos de la organización y del proveedor antes de usar información operacional.
-- El chatbot puede cometer errores; toda recomendación técnica debe contrastarse con manuales OEM, procedimientos aprobados y personal competente.
+No agregues `OPENAI_API_KEY` ni `MANTENIA_VECTOR_STORE_ID`: esta versión ya no los utiliza.
 
-## Limitaciones de la versión
-- Es un prototipo académico; requiere clave API válida y puede generar costos de API.
-- La base documental se crea en la cuenta/proyecto OpenAI asociado a la clave.
-- El identificador del vector store debe guardarse como secreto para reutilizar la misma base en despliegues o sesiones nuevas.
-- La conversión de XLSX/CSV indexa texto tabular; no equivale a ejecutar consultas SQL ni análisis de datos exhaustivo.
-- No se conecta a CMMS/EAM, telemetría, inventarios ni sistemas empresariales.
-- No incluye autenticación de usuarios ni control de permisos por documento; antes de un uso empresarial deben añadirse.
+## 4. Cargar manuales y procedimientos
+1. Abre MANTENIA.
+2. En la barra lateral, en «Base documental propia», pulsa Browse files / Upload.
+3. Selecciona uno o varios PDF, DOCX, TXT, MD o CSV.
+4. Pulsa «Procesar documentos».
+5. Realiza una pregunta relacionada con el contenido.
+
+**Importante sobre persistencia:** esta versión procesa los documentos en memoria de la sesión de Streamlit. Si la aplicación se reinicia o la sesión se pierde, tendrás que volver a cargar y procesar los documentos. Para un despliegue permanente, conviene añadir almacenamiento persistente autorizado (por ejemplo, almacenamiento de objetos o una base vectorial).
+
+## 5. Ejecutar localmente
+Requiere Python 3.10 o superior.
+
+```bash
+python -m venv .venv
+# Windows:
+.venv\Scripts\activate
+# macOS/Linux:
+source .venv/bin/activate
+
+pip install -r requirements.txt
+```
+
+Crea `.streamlit/secrets.toml` con:
+
+```toml
+GEMINI_API_KEY = "TU_CLAVE_REAL_DE_GEMINI"
+GEMINI_MODEL = "gemini-2.5-flash-lite"
+```
+
+Luego ejecuta:
+
+```bash
+streamlit run app.py
+```
+
+## 6. Qué cambió técnicamente
+- `openai` se eliminó.
+- Se utiliza `google-genai`.
+- Gemini se invoca mediante `client.models.generate_content`.
+- Google Search se activa con `types.Tool(google_search=types.GoogleSearch())`.
+- Los PDF se extraen página por página con `pypdf`.
+- Los DOCX se extraen con `python-docx`.
+- Se recuperan fragmentos por coincidencia de términos y se incluyen en el contexto de Gemini.
+
+## 7. Límites y seguridad
+- El nivel gratuito de Gemini tiene límites de solicitudes, tokens y disponibilidad de modelos. Si se supera una cuota, la API puede devolver errores de límite (por ejemplo, 429).
+- La disponibilidad gratuita de Google Search Grounding depende del modelo y del nivel de uso. Consulta siempre la página oficial de precios antes de publicar para usuarios externos.
+- En el nivel gratuito, Google indica que el contenido puede utilizarse para mejorar sus productos. No cargues manuales confidenciales, información de clientes, datos personales, reportes internos o información operacional restringida sin autorización y revisión de las condiciones aplicables.
+- La búsqueda web no convierte cualquier página en una fuente confiable. Prioriza fabricantes OEM, organismos oficiales, normas y publicaciones técnicas.
+- Los documentos cargados se guardan en memoria de la sesión, no en una base documental persistente.
+- MANTENIA es una herramienta de apoyo informativo; no sustituye manuales OEM, IPERC, permisos de trabajo ni la evaluación de personal competente.
